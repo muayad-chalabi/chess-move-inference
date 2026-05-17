@@ -2,11 +2,25 @@ import json
 import os
 import chess
 import chess.engine
+import numpy as np
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import uvicorn
+from typing import List
+from chess_move_inference import ChessMoveInference
 
 app = FastAPI(title="Stockfish Chess Server")
+
+# Allow CORS so external UI/software can connect
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # --- Config Management ---
 CONFIG_PATH = "config.json"
@@ -29,13 +43,20 @@ if not os.path.exists(STOCKFISH_PATH):
     print("Please download Stockfish (https://stockfishchess.org/download/),")
     print("extract it, and update the 'stockfish_path' in config.json.\n")
 
+# Provide inference model globally
+inference_model = ChessMoveInference()
+
 # --- Pydantic Models ---
 class BestMoveRequest(BaseModel):
-    fen: str  # FEN strings inherently encode the board state and whose turn it is
+    fen: str
 
 class RateMoveRequest(BaseModel):
     fen: str
-    move: str  # UCI string (e.g., "e2e4")
+    move: str
+
+class InferMoveRequest(BaseModel):
+    fen: str
+    occupancy_map: List[List[float]]
 
 # --- Helper Functions ---
 def get_engine():
@@ -46,7 +67,28 @@ def get_engine():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to start Stockfish engine: {e}")
 
+
 # --- API Endpoints ---
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+@app.post("/infer_move")
+def infer_move(req: InferMoveRequest):
+    try:
+        board = chess.Board(req.fen)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid FEN string")
+
+    # Map the webapp's nested 8x8 lists into a numpy array for the Python library
+    occ_map = np.array(req.occupancy_map)
+    best_move, confidence = inference_model.infer_move(board, occ_map)
+
+    return {
+        "best_move": best_move,
+        "confidence": float(confidence)
+    }
+
 @app.post("/best_move")
 def get_best_move(req: BestMoveRequest):
     try:
@@ -56,7 +98,6 @@ def get_best_move(req: BestMoveRequest):
 
     engine = get_engine()
     try:
-        # Ask Stockfish for the best move
         result = engine.play(board, chess.engine.Limit(time=THINK_TIME))
         return {
             "fen": req.fen,
@@ -64,7 +105,6 @@ def get_best_move(req: BestMoveRequest):
         }
     finally:
         engine.quit()
-
 
 @app.post("/rate_move")
 def rate_move(req: RateMoveRequest):
@@ -82,28 +122,18 @@ def rate_move(req: RateMoveRequest):
 
     engine = get_engine()
     try:
-        # 1. Evaluate the position BEFORE the move
         info_before = engine.analyse(board, chess.engine.Limit(time=THINK_TIME))
-        
-        # We look at the score from the perspective of the player whose turn it was
         score_before = info_before["score"].pov(board.turn)
         
-        # 2. Evaluate the position AFTER the move
         board.push(move)
         info_after = engine.analyse(board, chess.engine.Limit(time=THINK_TIME))
-        
-        # After the move, the turn has changed! But we still want to judge 
-        # how good the move was for the player who originally made it.
-        # So we use `not board.turn` (which refers to the player who just moved).
         score_after = info_after["score"].pov(not board.turn)
 
-        # 3. Calculate Centipawn values
         cp_before = score_before.score(mate_score=10000)
         cp_after = score_after.score(mate_score=10000)
 
         diff = cp_after - cp_before
 
-        # Determine rating description
         rating = "Good"
         if diff < -300:
             rating = "Blunder"
@@ -123,6 +153,12 @@ def rate_move(req: RateMoveRequest):
     finally:
         engine.quit()
 
+# --- Serve Webapp Files ---
+app.mount("/static", StaticFiles(directory="webapp"), name="static")
+
+@app.get("/")
+def serve_index():
+    return FileResponse("webapp/index.html")
 
 if __name__ == "__main__":
     host = config.get("host", "0.0.0.0")
