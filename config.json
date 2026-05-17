@@ -1,0 +1,7 @@
+{
+    "stockfish_path": "D:/Downloads/stockfish-windows-x86-64-avx2/stockfish/stockfish-windows-x86-64-avx2.exe",
+    "time_to_think_seconds": 0.5,
+    "skill_level": 20,
+    "host": "0.0.0.0",
+    "port": 8000
+}
