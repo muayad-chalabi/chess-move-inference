@@ -68,10 +68,35 @@ def get_engine():
         raise HTTPException(status_code=500, detail=f"Failed to start Stockfish engine: {e}")
 
 
+# Path where chess vision run.py writes its output (configurable via config.json)
+VISION_OUTPUT_DIR = config.get("vision_output_dir", ".")
+OCCUPIED_BITMAP_PATH = os.path.join(VISION_OUTPUT_DIR, "occupied_bitmap.npy")
+
+
 # --- API Endpoints ---
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+@app.get("/camera_occupancy")
+def camera_occupancy():
+    """
+    Read the latest occupied_bitmap.npy written by chess vision run.py.
+    Returns an 8x8 grid of 0.0/1.0 values as a JSON list of lists.
+    """
+    if not os.path.exists(OCCUPIED_BITMAP_PATH):
+        raise HTTPException(
+            status_code=404,
+            detail=f"occupied_bitmap.npy not found at '{OCCUPIED_BITMAP_PATH}'. "
+                   "Make sure chess vision run.py is running."
+        )
+    try:
+        bitmap = np.load(OCCUPIED_BITMAP_PATH).astype(np.float32)
+        if bitmap.shape != (8, 8):
+            raise HTTPException(status_code=500, detail=f"Unexpected bitmap shape: {bitmap.shape}")
+        return {"occupancy_map": bitmap.tolist()}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to read occupancy bitmap: {e}")
 
 @app.post("/infer_move")
 def infer_move(req: InferMoveRequest):

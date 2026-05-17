@@ -1,364 +1,472 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chess CV Webapp</title>
-    <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
-    <style>
-        :root {
-            --bg-dark: #0f172a;
-            --glass-bg: rgba(30, 41, 59, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --text: #f8fafc;
-            --accent: #38bdf8;
-            --danger: #ef4444;
-            --success: #10b981;
-        }
-        body {
-            background: linear-gradient(135deg, #020617, #0f172a);
-            color: var(--text);
-            font-family: 'Inter', -apple-system, sans-serif;
-            margin: 0;
-            padding: 2rem;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        h1 {
-            font-weight: 800;
-            margin-bottom: 2rem;
-            background: linear-gradient(to right, #38bdf8, #818cf8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .container {
-            display: flex;
-            gap: 2rem;
-            max-width: 1200px;
-            width: 100%;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .glass-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border);
-            border-radius: 1.5rem;
-            padding: 2rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            flex: 1;
-            min-width: 400px;
-        }
-        #board {
-            width: 100%;
-            border-radius: 4px;
-            overflow: hidden;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-        .controls {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--glass-border);
-            width: fit-content;
-        }
-        .indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-right: 0.75rem;
-        }
-        .indicator.online { background: var(--success); box-shadow: 0 0 10px var(--success); }
-        .indicator.offline { background: var(--danger); box-shadow: 0 0 10px var(--danger); }
-        
-        .slider-container {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        input[type="range"] {
-            width: 100%;
-            accent-color: var(--accent);
-        }
-        .occupancy-grid {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 2px;
-            background: #000;
-            padding: 2px;
-            border-radius: 0.5rem;
-            aspect-ratio: 1;
-            width: 100%;
-            max-width: 300px;
-        }
-        .occ-cell {
-            background: #fff;
-            aspect-ratio: 1;
-            border-radius: 2px;
-            transition: background-color 0.3s ease;
-        }
-        .log-box {
-            background: rgba(0,0,0,0.4);
-            border: 1px solid var(--glass-border);
-            border-radius: 0.5rem;
-            padding: 1rem;
-            height: 180px;
-            overflow-y: auto;
-            font-family: monospace;
-            font-size: 0.9rem;
-            color: #cbd5e1;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        .log-entry {
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding-bottom: 0.25rem;
-        }
-        .log-entry strong { color: var(--accent); }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chess CV — Live Board</title>
+<link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+<style>
+:root{--bg:#0f172a;--glass:rgba(30,41,59,0.75);--border:rgba(255,255,255,0.1);--text:#f8fafc;--accent:#38bdf8;--danger:#ef4444;--success:#10b981;--warn:#f59e0b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:linear-gradient(135deg,#020617,#0f172a);color:var(--text);font-family:'Inter',-apple-system,sans-serif;min-height:100vh;padding:1.5rem;display:flex;flex-direction:column;align-items:center;gap:1.5rem}
+h1{font-weight:800;background:linear-gradient(90deg,#38bdf8,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:1.8rem}
+.row{display:flex;gap:1.5rem;width:100%;max-width:1300px;flex-wrap:wrap;justify-content:center}
+.panel{background:var(--glass);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:1.25rem;padding:1.5rem;box-shadow:0 20px 40px rgba(0,0,0,0.4)}
+.panel h3{margin-bottom:1rem;font-size:0.9rem;text-transform:uppercase;letter-spacing:.1em;color:#94a3b8}
+#board{width:100%}
+.board-wrap{width:clamp(280px,42vw,480px)}
+
+/* Status */
+.badge{display:inline-flex;align-items:center;gap:.5rem;padding:.35rem .9rem;border-radius:9999px;font-size:.8rem;font-weight:600;background:rgba(0,0,0,.3);border:1px solid var(--border)}
+.dot{width:9px;height:9px;border-radius:50%}
+.dot.on{background:var(--success);box-shadow:0 0 8px var(--success)}
+.dot.off{background:var(--danger);box-shadow:0 0 8px var(--danger)}
+
+/* Source toggle */
+.seg{display:flex;background:rgba(0,0,0,.3);border-radius:.6rem;border:1px solid var(--border);overflow:hidden;width:100%}
+.seg button{flex:1;padding:.5rem;background:none;border:none;color:#94a3b8;cursor:pointer;font-size:.82rem;font-weight:600;transition:all .2s}
+.seg button.active{background:var(--accent);color:#000}
+
+/* Occupancy grid */
+.occ-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;background:#111;padding:3px;border-radius:.5rem;aspect-ratio:1;width:100%;max-width:220px}
+.occ-cell{aspect-ratio:1;border-radius:2px;transition:background .25s}
+
+/* Big detect button */
+#detect-btn{width:100%;padding:.9rem;background:linear-gradient(135deg,#38bdf8,#818cf8);border:none;border-radius:.75rem;color:#000;font-weight:800;font-size:1rem;cursor:pointer;letter-spacing:.05em;transition:opacity .2s;box-shadow:0 4px 20px rgba(56,189,248,.35)}
+#detect-btn:hover{opacity:.85}
+#detect-btn:disabled{opacity:.4;cursor:not-allowed}
+#detect-btn kbd{font-size:.75rem;opacity:.7;margin-left:.5rem}
+
+/* Log */
+.log{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:.5rem;padding:.75rem;height:150px;overflow-y:auto;font-family:monospace;font-size:.78rem;color:#cbd5e1;display:flex;flex-direction:column;gap:.3rem}
+.log .e{border-bottom:1px solid rgba(255,255,255,.05);padding-bottom:.25rem}
+.log .e b{color:var(--accent)}
+.log .e.err b{color:var(--danger)}
+.log .e.ok b{color:var(--success)}
+.log .e.warn b{color:var(--warn)}
+
+/* Noise slider */
+label.sl{display:flex;flex-direction:column;gap:.4rem;font-size:.82rem;color:#94a3b8}
+input[type=range]{accent-color:var(--accent);width:100%}
+
+/* ── Board Editor Modal ── */
+#editor-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);z-index:100;align-items:center;justify-content:center}
+#editor-overlay.open{display:flex}
+#editor-box{background:#1e293b;border:1px solid var(--border);border-radius:1.25rem;padding:1.75rem;width:min(96vw,780px);display:flex;flex-direction:column;gap:1.25rem;box-shadow:0 30px 60px rgba(0,0,0,.6)}
+#editor-box h2{font-size:1.1rem;font-weight:700;color:var(--accent)}
+.editor-row{display:flex;gap:1rem;align-items:flex-start;flex-wrap:wrap}
+.ed-board-wrap{position:relative;flex-shrink:0}
+#ed-board{width:clamp(240px,38vw,380px)}
+/* overlay squares for clicking */
+.ed-sq{position:absolute;cursor:pointer;opacity:0;transition:opacity .15s}
+.ed-sq:hover{opacity:.35;background:rgba(56,189,248,.5)}
+
+.piece-picker{display:flex;flex-direction:column;gap:.75rem;flex:1;min-width:200px}
+.piece-picker h4{font-size:.82rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em}
+.piece-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:.4rem}
+.pc-btn{padding:.4rem .2rem;background:rgba(255,255,255,.07);border:2px solid transparent;border-radius:.5rem;color:var(--text);font-size:1.1rem;cursor:pointer;text-align:center;transition:all .15s}
+.pc-btn:hover{background:rgba(56,189,248,.15);border-color:var(--accent)}
+.pc-btn.selected{border-color:var(--accent);background:rgba(56,189,248,.25)}
+.pc-btn.eraser{font-size:.75rem;color:#94a3b8}
+
+.turn-row{display:flex;gap:.75rem;align-items:center;font-size:.85rem;color:#94a3b8}
+.turn-row button{padding:.35rem .9rem;border-radius:.5rem;border:1px solid var(--border);background:rgba(0,0,0,.3);color:var(--text);cursor:pointer;font-weight:600;font-size:.82rem;transition:all .2s}
+.turn-row button.active-turn{border-color:var(--accent);background:rgba(56,189,248,.2);color:var(--accent)}
+
+.ed-actions{display:flex;gap:.75rem;flex-wrap:wrap}
+.ed-actions button{padding:.55rem 1.2rem;border-radius:.6rem;border:1px solid var(--border);background:rgba(255,255,255,.07);color:var(--text);cursor:pointer;font-size:.82rem;font-weight:600;transition:all .2s}
+.ed-actions button:hover{background:rgba(255,255,255,.14)}
+#ed-apply{background:linear-gradient(135deg,#38bdf8,#818cf8);border:none;color:#000;font-weight:700}
+#ed-apply:hover{opacity:.85}
+</style>
 </head>
 <body>
 
-    <h1>Chess Computer Vision UI</h1>
+<h1>♟ Chess CV — Live Board</h1>
 
-    <div class="container">
-        <!-- Left: Chessboard -->
-        <div class="glass-panel">
-            <h3 style="margin-top:0">Live Board</h3>
-            <div id="board"></div>
-        </div>
+<div class="row">
+  <!-- LEFT: board -->
+  <div class="panel board-wrap">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+      <div class="badge"><div class="dot off" id="dot"></div><span id="srv-txt">Server Offline</span></div>
+      <button onclick="openEditor()" style="padding:.35rem .9rem;border-radius:.6rem;border:1px solid var(--border);background:rgba(255,255,255,.07);color:var(--text);cursor:pointer;font-size:.82rem;font-weight:600">✏ Edit Board</button>
+    </div>
+    <div id="board"></div>
+    <p style="margin-top:.75rem;font-size:.75rem;color:#64748b;text-align:center">Drag pieces to make your move, then press <kbd style="background:rgba(255,255,255,.1);padding:.1rem .4rem;border-radius:.3rem">Space</kbd> to detect</p>
+  </div>
 
-        <!-- Right: Controls & Occupancy Map -->
-        <div class="glass-panel controls">
-            <div class="status-badge" id="server-status">
-                <div class="indicator offline" id="status-indicator"></div>
-                <span id="status-text">Server Offline</span>
-            </div>
+  <!-- RIGHT: controls -->
+  <div class="panel" style="flex:1;min-width:280px;display:flex;flex-direction:column;gap:1.25rem">
 
-            <div class="slider-container">
-                <label for="noise-slider">Camera Noise Level: <span id="noise-val">0.05</span></label>
-                <input type="range" id="noise-slider" min="0" max="0.5" step="0.01" value="0.05">
-            </div>
-
-            <div>
-                <h3 style="margin-top:0.5rem; margin-bottom: 1rem">Occupancy Map Visualization</h3>
-                <div class="occupancy-grid" id="occ-grid">
-                    <!-- JS will populate 64 cells -->
-                </div>
-            </div>
-
-            <div class="log-box" id="action-log">
-                <div class="log-entry">Waiting for game to start...</div>
-            </div>
-        </div>
+    <div>
+      <h3>Occupancy Source</h3>
+      <div class="seg">
+        <button class="active" id="src-digital" onclick="setSource('digital')">📊 Digital (Noisy)</button>
+        <button id="src-camera" onclick="setSource('camera')">📷 Camera (Live)</button>
+      </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
-    <script>
-        const API_BASE = "http://localhost:8000";
-        let board = null;
-        let game = new Chess();
-        let noiseLevel = 0.05;
+    <div id="noise-section">
+      <h3>Noise Level</h3>
+      <label class="sl"><span>Noise: <span id="noise-val">0.05</span></span>
+        <input type="range" id="noise-slider" min="0" max="0.5" step="0.01" value="0.05">
+      </label>
+    </div>
 
-        // Initialize UI Elements
-        const $statusIndicator = $('#status-indicator');
-        const $statusText = $('#status-text');
-        const $noiseVal = $('#noise-val');
-        const $occGrid = $('#occ-grid');
-        const $logBox = $('#action-log');
+    <div>
+      <h3>Occupancy Map</h3>
+      <div style="display:flex;justify-content:center">
+        <div class="occ-grid" id="occ-grid"></div>
+      </div>
+    </div>
 
-        // Create 64 cells for the occupancy map
-        for(let i=0; i<64; i++){
-            $occGrid.append(`<div class="occ-cell" id="occ-${i}"></div>`);
-        }
+    <div>
+      <button id="detect-btn" disabled>
+        🔍 Detect Move <kbd>[Space]</kbd>
+      </button>
+    </div>
 
-        // Noise Slider Event
-        $('#noise-slider').on('input', function() {
-            noiseLevel = parseFloat($(this).val());
-            $noiseVal.text(noiseLevel.toFixed(2));
-            renderOccupancy(game.fen());
-        });
+    <div>
+      <h3>Event Log</h3>
+      <div class="log" id="log"><div class="e">Waiting…</div></div>
+    </div>
 
-        function log(msg) {
-            $logBox.prepend(`<div class="log-entry">${msg}</div>`);
-        }
+  </div>
+</div>
 
-        // Check Server Health
-        async function checkServer() {
-            try {
-                const res = await fetch(`${API_BASE}/health`);
-                if (res.ok) {
-                    $statusIndicator.removeClass('offline').addClass('online');
-                    $statusText.text('Server Online');
-                } else {
-                    throw new Error();
-                }
-            } catch(e) {
-                $statusIndicator.removeClass('online').addClass('offline');
-                $statusText.text('Server Offline');
-            }
-        }
-        setInterval(checkServer, 3000);
-        checkServer();
+<!-- ══ Board Editor Modal ══ -->
+<div id="editor-overlay">
+  <div id="editor-box">
+    <h2>✏ Board State Editor</h2>
+    <div class="editor-row">
+      <div class="ed-board-wrap">
+        <div id="ed-board"></div>
+        <div id="ed-sq-overlay" style="position:absolute;inset:0;pointer-events:none"></div>
+      </div>
+      <div class="piece-picker">
+        <h4>Place piece (click square)</h4>
+        <div class="piece-grid" id="piece-grid"></div>
+        <h4 style="margin-top:.5rem">Active turn</h4>
+        <div class="turn-row">
+          <button id="turn-w" class="active-turn" onclick="setEditorTurn('w')">White</button>
+          <button id="turn-b" onclick="setEditorTurn('b')">Black</button>
+        </div>
+      </div>
+    </div>
+    <div class="ed-actions">
+      <button onclick="edReset()">↩ Reset to Start</button>
+      <button onclick="edClear()">🗑 Clear Board</button>
+      <button onclick="closeEditor()">Cancel</button>
+      <button id="ed-apply" onclick="applyEditor()">✓ Apply</button>
+    </div>
+  </div>
+</div>
 
-        // Occupancy Map Generation
-        function getOccupancy(fen) {
-            const tempChess = new Chess(fen);
-            let occ = [];
-            for (let r = 0; r < 8; r++) {
-                let row = [];
-                for (let c = 0; c < 8; c++) {
-                    const file = String.fromCharCode('a'.charCodeAt(0) + c);
-                    const rank = 8 - r;
-                    const sq = file + rank;
-                    const piece = tempChess.get(sq);
-                    row.push(piece ? 1.0 : 0.0);
-                }
-                occ.push(row);
-            }
-            return occ;
-        }
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<script>
+const API = 'http://localhost:8000';
 
-        function addNoiseAndClip(occ, noise) {
-            let noisy = [];
-            for(let r=0; r<8; r++){
-                let row = [];
-                for(let c=0; c<8; c++){
-                    let u1 = Math.random();
-                    let u2 = Math.random();
-                    let z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
-                    let val = occ[r][c] + (z0 * noise);
-                    val = Math.max(0, Math.min(1, val));
-                    row.push(val);
-                }
-                noisy.push(row);
-            }
-            return noisy;
-        }
+// ── State ──────────────────────────────────────────────────────────
+let game = new Chess();
+let board, edBoard;
+let occupancySource = 'digital'; // 'digital' | 'camera'
+let noiseLevel = 0.05;
+let pendingOccupancy = null;      // captured on drag-end, consumed on Space
 
-        function renderOccupancy(fen) {
-            let occ = getOccupancy(fen);
-            let noisy = addNoiseAndClip(occ, noiseLevel);
-            let idx = 0;
-            for(let r=0; r<8; r++){
-                for(let c=0; c<8; c++){
-                    let val = noisy[r][c];
-                    // Map 0 -> black, 1 -> cyan (rgb(56, 189, 248))
-                    let rColor = Math.floor(val * 56);
-                    let gColor = Math.floor(val * 189);
-                    let bColor = Math.floor(val * 248);
-                    $(`#occ-${idx}`).css('background-color', `rgb(${rColor},${gColor},${bColor})`);
-                    idx++;
-                }
-            }
-            return noisy;
-        }
+// piece maps
+const PIECES = [
+  {label:'♙',code:'wP'},{label:'♘',code:'wN'},{label:'♗',code:'wB'},
+  {label:'♖',code:'wR'},{label:'♕',code:'wQ'},{label:'♔',code:'wK'},
+  {label:'♟',code:'bP'},{label:'♞',code:'bN'},{label:'♝',code:'bB'},
+  {label:'♜',code:'bR'},{label:'♛',code:'bQ'},{label:'♚',code:'bK'},
+  {label:'✕',code:'empty',cls:'eraser'},
+];
+let selectedPiece = PIECES[0];
+let editorTurn = 'w';
+let editorGame = null; // Chess instance inside editor
 
-        // Logic for human move inference
-        function onDrop(source, target) {
-            // Predict what the move looks like to the camera
-            const tempGame = new Chess(game.fen());
-            const moveResult = tempGame.move({ from: source, to: target, promotion: 'q' });
-            
-            if (moveResult === null) return 'snapback'; // Illegal physical move
+// ── Build 64 occ cells ─────────────────────────────────────────────
+for(let i=0;i<64;i++) $('#occ-grid').append(`<div class="occ-cell" id="oc-${i}"></div>`);
 
-            log(`Human moved piece to ${target}. Camera analyzing...`);
+// ── Server health ──────────────────────────────────────────────────
+async function checkServer(){
+  try{
+    const r=await fetch(`${API}/health`);
+    if(r.ok){ $('#dot').attr('class','dot on'); $('#srv-txt').text('Server Online'); $('#detect-btn').prop('disabled',false); }
+    else throw 0;
+  }catch{ $('#dot').attr('class','dot off'); $('#srv-txt').text('Server Offline'); $('#detect-btn').prop('disabled',true); }
+}
+setInterval(checkServer,3000); checkServer();
 
-            // 1. Calculate Noisy Occupancy Map of the NEW state
-            let noisyOcc = renderOccupancy(tempGame.fen());
+// ── Log ────────────────────────────────────────────────────────────
+function log(msg,cls=''){
+  const $log=$('#log');
+  $log.prepend(`<div class="e ${cls}">${msg}</div>`);
+  while($log.children().length>60) $log.children().last().remove();
+}
 
-            // Run async API calls without blocking the onDrop return
-            processMoveInference(noisyOcc);
-        }
+// ── Source toggle ──────────────────────────────────────────────────
+function setSource(s){
+  occupancySource=s;
+  $('#src-digital,#src-camera').removeClass('active');
+  $(`#src-${s}`).addClass('active');
+  $('#noise-section').toggle(s==='digital');
+  log(`Source → <b>${s==='digital'?'Digital (noisy)':'Camera (live)'}</b>`,'warn');
+  renderOccupancy();
+}
 
-        async function processMoveInference(noisyOcc) {
-            // 2. Ask Inference Server what move it sees based on OLD fen and NEW occupancy
-            try {
-                const res = await fetch(`${API_BASE}/infer_move`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        fen: game.fen(),
-                        occupancy_map: noisyOcc
-                    })
-                });
-                
-                const data = await res.json();
-                
-                if (!data.best_move || data.best_move === "0000") {
-                    log(`<strong>CV Engine Error:</strong> Failed to detect move (Confidence: ${data.confidence.toFixed(4)})`);
-                    // Snap the UI board back to the real game state if CV fails
-                    board.position(game.fen());
-                    return;
-                }
+$('#noise-slider').on('input',function(){
+  noiseLevel=parseFloat(this.value);
+  $('#noise-val').text(noiseLevel.toFixed(2));
+  renderOccupancy();
+});
 
-                log(`<strong>CV Detected:</strong> ${data.best_move} (Confidence: ${data.confidence.toFixed(4)})`);
-                
-                // Officially apply the move recognized by CV
-                game.move(data.best_move, {sloppy: true});
-                board.position(game.fen());
-                
-                // Trigger Computer's turn
-                setTimeout(makeComputerMove, 500);
+// ── Occupancy helpers ──────────────────────────────────────────────
+function fenToOccupancy(fen){
+  const tmp=new Chess(fen); let occ=[];
+  for(let r=0;r<8;r++){
+    let row=[];
+    for(let c=0;c<8;c++){
+      const sq=String.fromCharCode(97+c)+(8-r);
+      row.push(tmp.get(sq)?1.0:0.0);
+    }
+    occ.push(row);
+  }
+  return occ;
+}
 
-            } catch (err) {
-                log(`<strong>Server Error:</strong> Could not reach inference API.`);
-                // Snap the UI board back to the real game state if server is offline
-                board.position(game.fen());
-            }
-        }
+function addNoise(occ){
+  return occ.map(row=>row.map(v=>{
+    const z=(()=>{const u1=Math.random(),u2=Math.random();return Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2);})();
+    return Math.min(1,Math.max(0,v+z*noiseLevel));
+  }));
+}
 
-        async function makeComputerMove() {
-            if (game.game_over()) {
-                log("<strong>Game Over!</strong>");
-                return;
-            }
+async function getCameraOccupancy(){
+  const r=await fetch(`${API}/camera_occupancy`);
+  if(!r.ok) throw new Error(await r.text());
+  const d=await r.json();
+  return d.occupancy_map;
+}
 
-            log(`Stockfish is thinking...`);
-            try {
-                const res = await fetch(`${API_BASE}/best_move`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fen: game.fen() })
-                });
-                const data = await res.json();
-                
-                if(data.best_move) {
-                    game.move(data.best_move, {sloppy: true});
-                    board.position(game.fen());
-                    renderOccupancy(game.fen());
-                    log(`<strong>Stockfish played:</strong> ${data.best_move}`);
-                }
-            } catch(e) {
-                log(`<strong>Server Error:</strong> Could not reach Stockfish API.`);
-            }
-        }
+async function getOccupancy(){
+  if(occupancySource==='camera'){
+    try{ return await getCameraOccupancy(); }
+    catch(e){ log(`<b>Camera error:</b> ${e.message} — falling back to digital`,'err'); return addNoise(fenToOccupancy(game.fen())); }
+  }
+  return addNoise(fenToOccupancy(game.fen()));
+}
 
-        const boardConfig = {
-            draggable: true,
-            position: 'start',
-            onDrop: onDrop,
-            pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
-        };
-        board = Chessboard('board', boardConfig);
-        renderOccupancy(game.fen());
+function renderOccMap(occ){
+  let i=0;
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++){
+    const v=occ[r][c];
+    $(`#oc-${i}`).css('background',`rgb(${Math.round(v*56)},${Math.round(v*189)},${Math.round(v*248)})`);
+    i++;
+  }
+}
 
-    </script>
+async function renderOccupancy(){
+  const occ=await getOccupancy();
+  renderOccMap(occ);
+  return occ;
+}
+
+// ── Main board ─────────────────────────────────────────────────────
+function onDragStart(source,piece){
+  if(game.game_over()) return false;
+  // only move pieces matching current turn
+  if(game.turn()==='w' && piece.startsWith('b')) return false;
+  if(game.turn()==='b' && piece.startsWith('w')) return false;
+}
+
+function onDrop(source,target){
+  if(source===target) return;
+  // tentatively make the move in Chess.js to validate legality
+  const mv=game.move({from:source,to:target,promotion:'q'});
+  if(mv===null) return 'snapback';
+  board.position(game.fen());
+
+  // Capture the occupancy state right now (after piece is on new square)
+  getOccupancy().then(occ=>{
+    pendingOccupancy=occ;
+    renderOccMap(occ);
+    log('Move staged — press <b>Space</b> to detect','warn');
+  });
+}
+
+board = Chessboard('board',{
+  draggable:true,
+  position:'start',
+  pieceTheme:'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png',
+  onDragStart,
+  onDrop,
+});
+
+renderOccupancy();
+
+// ── Space / Detect button ──────────────────────────────────────────
+document.addEventListener('keydown',e=>{ if(e.code==='Space'&&!e.repeat){ e.preventDefault(); triggerDetect(); }});
+$('#detect-btn').on('click', triggerDetect);
+
+async function triggerDetect(){
+  if($('#detect-btn').prop('disabled')) return;
+
+  // If no pending occupancy from a drag, just read current state
+  let occ = pendingOccupancy;
+  if(!occ){
+    log('Reading current occupancy…');
+    occ = await getOccupancy();
+  }
+  pendingOccupancy = null;
+  
+  log('Sending to inference…','warn');
+  $('#detect-btn').prop('disabled',true);
+
+  try{
+    const res=await fetch(`${API}/infer_move`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fen:game.fen(), occupancy_map:occ})
+    });
+    const d=await res.json();
+    $('#detect-btn').prop('disabled',false);
+
+    if(!d.best_move||d.best_move==='0000'){
+      log(`<b>No move detected</b> (conf: ${d.confidence?.toFixed(3)})`, 'err');
+      board.position(game.fen());
+      return;
+    }
+
+    log(`<b>Detected:</b> ${d.best_move} (conf: ${d.confidence.toFixed(3)})`, 'ok');
+    game.move(d.best_move,{sloppy:true});
+    board.position(game.fen());
+    renderOccupancy();
+    setTimeout(makeComputerMove, 400);
+  }catch(e){
+    $('#detect-btn').prop('disabled',false);
+    log(`<b>Server error:</b> ${e.message}`,'err');
+    board.position(game.fen());
+  }
+}
+
+async function makeComputerMove(){
+  if(game.game_over()){ log('<b>Game over!</b>','warn'); return; }
+  log('Stockfish thinking…');
+  try{
+    const res=await fetch(`${API}/best_move`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fen:game.fen()})});
+    const d=await res.json();
+    if(d.best_move){
+      game.move(d.best_move,{sloppy:true});
+      board.position(game.fen());
+      log(`<b>Stockfish:</b> ${d.best_move}`,'ok');
+      await renderOccupancy();
+    }
+  }catch(e){ log(`<b>Engine error:</b> ${e.message}`,'err'); }
+}
+
+// ── Board Editor ───────────────────────────────────────────────────
+const PIECE_THEME='https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png';
+
+function buildPiecePicker(){
+  const $pg=$('#piece-grid'); $pg.empty();
+  PIECES.forEach(p=>{
+    const cls=p.cls||'';
+    const sel=p.code===selectedPiece.code?'selected':'';
+    $pg.append(`<button class="pc-btn ${cls} ${sel}" data-code="${p.code}" title="${p.code}">${p.label}</button>`);
+  });
+  $('#piece-grid').on('click','.pc-btn',function(){
+    selectedPiece=PIECES.find(p=>p.code===$(this).data('code'));
+    $('#piece-grid .pc-btn').removeClass('selected');
+    $(this).addClass('selected');
+  });
+}
+
+function buildEditorOverlay(squarePx){
+  const $ov=$('#ed-sq-overlay');
+  $ov.empty(); $ov.css('pointer-events','auto');
+  for(let r=0;r<8;r++){
+    for(let c=0;c<8;c++){
+      const rank=8-r, file=String.fromCharCode(97+c);
+      const sq=file+rank;
+      const $sq=$(`<div class="ed-sq" data-sq="${sq}" style="position:absolute;width:${squarePx}px;height:${squarePx}px;left:${c*squarePx}px;top:${r*squarePx}px;"></div>`);
+      $ov.append($sq);
+    }
+  }
+  $ov.on('click','.ed-sq',function(){
+    const sq=$(this).data('sq');
+    if(selectedPiece.code==='empty'){
+      editorGame.remove(sq);
+    }else{
+      const color=selectedPiece.code[0]; // 'w' or 'b'
+      const type=selectedPiece.code[1].toLowerCase();
+      editorGame.remove(sq);
+      editorGame.put({type,color},sq);
+    }
+    edBoard.position(editorGame.fen());
+  });
+}
+
+function openEditor(){
+  editorGame=new Chess(game.fen());
+  editorTurn=game.turn();
+  updateTurnButtons();
+  buildPiecePicker();
+  if(!edBoard){
+    edBoard=Chessboard('ed-board',{
+      position: editorGame.fen(),
+      pieceTheme: PIECE_THEME,
+      draggable:false,
+    });
+  }else{
+    edBoard.position(editorGame.fen());
+  }
+  // Build overlay after board renders
+  setTimeout(()=>{
+    const boardEl=document.getElementById('ed-board');
+    const sqPx=boardEl.offsetWidth/8;
+    buildEditorOverlay(sqPx);
+  },100);
+  $('#editor-overlay').addClass('open');
+}
+
+function closeEditor(){ $('#editor-overlay').removeClass('open'); }
+
+function setEditorTurn(t){
+  editorTurn=t;
+  updateTurnButtons();
+}
+function updateTurnButtons(){
+  $('#turn-w').toggleClass('active-turn',editorTurn==='w');
+  $('#turn-b').toggleClass('active-turn',editorTurn==='b');
+}
+
+function edReset(){ editorGame=new Chess(); edBoard.position('start'); }
+function edClear(){ editorGame=new Chess('8/8/8/8/8/8/8/8 w - - 0 1'); edBoard.position('8/8/8/8/8/8/8/8'); }
+
+function applyEditor(){
+  // Rebuild FEN with chosen turn
+  const fenParts=editorGame.fen().split(' ');
+  fenParts[1]=editorTurn;
+  fenParts[2]='-'; fenParts[3]='-'; // strip castling/en-passant for custom states
+  const newFen=fenParts.join(' ');
+  try{
+    const testGame=new Chess(newFen);
+    game=testGame;
+    board.position(game.fen());
+    pendingOccupancy=null;
+    renderOccupancy();
+    log(`<b>Board edited</b> — turn: ${editorTurn==='w'?'White':'Black'}`,'ok');
+  }catch(e){
+    log(`<b>Invalid board state:</b> ${e.message}`,'err');
+  }
+  closeEditor();
+}
+
+// Close overlay on backdrop click
+$('#editor-overlay').on('click',function(e){ if(e.target===this) closeEditor(); });
+</script>
 </body>
 </html>
