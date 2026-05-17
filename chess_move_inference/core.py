@@ -10,13 +10,13 @@ from .scoring import score_hypothesis
 class ChessMoveInference:
     def __init__(self):
         self.priors = {
-            'move': 0.60,
-            'capture': 0.35,
-            'castle': 0.15,
-            'en_passant': 0.10,
+            'move': 0.90,
+            'capture': 0.85,
+            'castle': 0.55,
+            'en_passant': 0.20,
             'nothing': 0.01,
         }
-        self.illegal_penalty = 0.01
+        self.illegal_penalty = 0.1
         
     def infer_move(self, board_state: chess.Board, occupancy_map: np.ndarray) -> Tuple[Optional[str], float]:
         old_occupancy = board_to_occupancy(board_state)
