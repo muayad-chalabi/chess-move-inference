@@ -1,0 +1,11 @@
+board1.png
+.venv/
+venv/*
+venv/*
+tests/chess_move_infrence.py
+*.pt
+*.png
+*.ts
+*.mp4
+*.pyc
+create_package.py

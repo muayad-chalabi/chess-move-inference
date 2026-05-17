@@ -1,0 +1,14 @@
+# Minimal requirements for the chess-cv project
+# Note: Install a torch build appropriate for your machine (CPU vs CUDA) if needed.
+ultralytics>=8.4.0
+opencv-python>=4.7.0
+numpy>=1.24.0
+tqdm>=4.65.0
+# If you need torchvision explicitly, uncomment the next line
+# torchvision
+# For explicit torch installation it's recommended to follow https://pytorch.org/get-started/locally/
+# and install the appropriate wheel for your platform (CUDA or CPU).
+# Example (CPU):
+# torch==2.1.0+cpu
+# Example (CUDA):
+# torch==2.1.0+cu118
