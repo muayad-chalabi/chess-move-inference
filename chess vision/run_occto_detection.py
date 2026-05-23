@@ -10,6 +10,7 @@ Usage:
     python3 run.py --interval 0.5           # capture every 0.5 s
     python3 run.py --output-dir /tmp/chess  # write outputs to a custom dir
     python3 run.py --visualize              # show live annotated board window
+    python3 run.py --max-fps 10             # limit processing / visualization FPS
 
 Output files (written atomically via temp-file rename):
     <output_dir>/occupied_bitmap.npy   — shape (8,8) dtype bool
@@ -31,7 +32,8 @@ import cv2
 import numpy as np
 
 from chess_vision import (
-    CameraStream, BoardAnalyzer, IrregularBoardAnalyzer, load_calibration
+    CameraStream, BoardAnalyzer, IrregularBoardAnalyzer, load_calibration,
+    BOARD_PX, SQUARE_PX
 )
 
 RANK_LABELS = "87654321"
@@ -55,6 +57,69 @@ def atomic_save(path: Path, array: np.ndarray) -> None:
     os.replace(tmp, path)  # atomic on Linux
 
 
+def warp_board(image: np.ndarray, matrix: np.ndarray, size: int, flags: int) -> np.ndarray:
+    return cv2.warpPerspective(image, matrix, (size, size), flags=flags)
+
+
+def grid_corners(grid: np.ndarray) -> np.ndarray:
+    return np.float32([grid[0, 0], grid[0, 8], grid[8, 8], grid[8, 0]])
+
+
+def build_uniform_grid() -> np.ndarray:
+    grid = np.zeros((9, 9, 2), dtype=np.float32)
+    for r in range(9):
+        for c in range(9):
+            grid[r, c] = (c * SQUARE_PX, r * SQUARE_PX)
+    return grid
+
+
+def render_height_overlay(
+    color_bgr: np.ndarray,
+    grid: np.ndarray,
+    height_grid_mm: np.ndarray,
+    max_height_mm: float = 80.0,
+    alpha: float = 0.45,
+) -> np.ndarray:
+    overlay = color_bgr.copy()
+    height_norm = np.clip(height_grid_mm / max_height_mm, 0.0, 1.0)
+    for r in range(8):
+        for c in range(8):
+            quad = np.array([
+                grid[r, c],
+                grid[r, c + 1],
+                grid[r + 1, c + 1],
+                grid[r + 1, c],
+            ], dtype=np.int32)
+            color = cv2.applyColorMap(
+                np.array([[int(height_norm[r, c] * 255)]], dtype=np.uint8),
+                cv2.COLORMAP_JET
+            )[0, 0].tolist()
+            cv2.fillPoly(overlay, [quad], color)
+
+    blended = cv2.addWeighted(overlay, alpha, color_bgr, 1 - alpha, 0)
+
+    for r in range(8):
+        for c in range(8):
+            quad = np.array([
+                grid[r, c],
+                grid[r, c + 1],
+                grid[r + 1, c + 1],
+                grid[r + 1, c],
+            ], dtype=np.int32)
+            cv2.polylines(blended, [quad], isClosed=True, color=(40, 40, 40), thickness=1)
+            cx, cy = quad.mean(axis=0).astype(int)
+            text = f"{height_grid_mm[r, c]:.0f}mm"
+            (tw, th), _ = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.45, 1)
+            cv2.rectangle(blended,
+                          (cx - tw // 2 - 2, cy - th // 2 - 2),
+                          (cx + tw // 2 + 2, cy + th // 2 + 2),
+                          (0, 0, 0), -1)
+            cv2.putText(blended, text, (cx - tw // 2, cy + th // 2),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 1, cv2.LINE_AA)
+
+    return blended
+
+
 def main():
     parser = argparse.ArgumentParser(description="Chess Vision live detection")
     parser.add_argument("--output-dir", default=".",
@@ -65,6 +130,8 @@ def main():
                         help="Capture one snapshot and exit")
     parser.add_argument("--visualize", action="store_false",
                         help="Show a live annotated board window (requires display)")
+    parser.add_argument("--max-fps", type=float, default=15.0,
+                        help="Limit processing/visualization FPS (default: 15)")
     parser.add_argument("--calibration", default="calibration.npz",
                         help="Path to calibration file (default: calibration.npz)")
     parser.add_argument("--threshold", type=float, default=None,
@@ -92,10 +159,25 @@ def main():
         print(f"Overriding occupancy threshold → {threshold} mm")
 
     if mode == "grid":
-        analyzer = IrregularBoardAnalyzer(data, baseline, threshold_mm=threshold)
+        grid_points = data.astype(np.float32)
+        src = grid_corners(grid_points)
+        dst = np.float32([
+            [0, 0],
+            [BOARD_PX, 0],
+            [BOARD_PX, BOARD_PX],
+            [0, BOARD_PX],
+        ])
+        warp_M = cv2.getPerspectiveTransform(src, dst)
+        grid_warped = cv2.perspectiveTransform(
+            grid_points.reshape(-1, 1, 2), warp_M
+        ).reshape(9, 9, 2)
+        analyzer = IrregularBoardAnalyzer(grid_warped, baseline, threshold_mm=threshold)
+        overlay_grid = grid_warped
         print("Mode: Irregular grid (per-square quad sampling)")
     else:
-        analyzer = BoardAnalyzer(data, baseline, threshold_mm=threshold)
+        warp_M = data.astype(np.float32)
+        analyzer = BoardAnalyzer(np.eye(3, dtype=np.float32), baseline, threshold_mm=threshold)
+        overlay_grid = build_uniform_grid()
         print("Mode: 4-corner perspective transform")
     print(f"Occupancy threshold: {threshold} mm")
     print(f"Output directory:    {out_dir.resolve()}")
@@ -109,14 +191,22 @@ def main():
         print("Camera ready. Press Ctrl-C to stop.\n")
         try:
             last_print = 0.0
+            min_frame_time = 1.0 / args.max_fps if args.max_fps > 0 else 0.0
 
             while True:
+                frame_start = time.monotonic()
                 color, depth = cam.get_frames()
                 if color is None or depth is None:
                     continue
 
-                # Analyze every frame to keep the smoothing buffer updated (30 FPS)
-                occupied, heights_full, threshold_mask, normalized_grid, piece_classes = analyzer.analyze(depth, color)
+                warped_color = warp_board(color, warp_M, BOARD_PX, flags=cv2.INTER_LINEAR)
+                warped_depth = warp_board(depth, warp_M, BOARD_PX, flags=cv2.INTER_NEAREST)
+
+                # Analyze every frame to keep the smoothing buffer updated
+                if mode == "grid":
+                    occupied, heights_full, threshold_mask, normalized_grid, piece_classes, height_grid_mm = analyzer.analyze(warped_depth)
+                else:
+                    occupied, heights_full, threshold_mask, normalized_grid, piece_classes, height_grid_mm = analyzer.analyze(warped_depth, prewarped=True)
 
                 now = time.monotonic()
                 if args.once or (now - last_print) >= args.interval:
@@ -124,7 +214,7 @@ def main():
 
                     # Save outputs atomically
                     atomic_save(occupied_path, occupied)
-                    atomic_save(height_path, normalized_grid)
+                    atomic_save(height_path, height_grid_mm)
 
                     # Terminal display
                     ts = time.strftime("%H:%M:%S")
@@ -136,54 +226,17 @@ def main():
                         print(f"Saved to: {out_dir}")
                         break
 
-                # Optional live visualization windows (updates at camera FPS)
                 if args.visualize:
-                    vis = analyzer.visualize(color, occupied)
-                    cv2.imshow("Chess Vision — Board State", vis)
-                    
-                    # 1. Full Resolution Height Map + Grid
-                    heights_vis = cv2.normalize(heights_full, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-                    heights_vis = cv2.applyColorMap(heights_vis, cv2.COLORMAP_JET)
-                    
-                    if hasattr(analyzer, 'M'):  # BoardAnalyzer (Warped space is 512x512)
-                        for i in range(1, 8):
-                            cv2.line(heights_vis, (i * 64, 0), (i * 64, 512), (255, 255, 255), 1)
-                            cv2.line(heights_vis, (0, i * 64), (512, i * 64), (255, 255, 255), 1)
-                    else:  # IrregularBoardAnalyzer (Image space is e.g. 1280x720)
-                        from chess_vision import draw_grid
-                        heights_vis = draw_grid(heights_vis, analyzer.grid, color=(255, 255, 255))
-                        
-                    cv2.imshow("Full Resolution Height Map", heights_vis)
-
-                    # 2. Pixels passing threshold (Threshold Pass Mask)
-                    if hasattr(analyzer, 'M'):
-                        # Already 512x512
-                        cv2.imshow("Pixels > 2cm (Threshold Pass)", threshold_mask)
-                    else:
-                        # 1280x720, let's resize to a smaller size for display (e.g. 640x360)
-                        mask_resized = cv2.resize(threshold_mask, (640, 360), interpolation=cv2.INTER_NEAREST)
-                        cv2.imshow("Pixels > 2cm (Threshold Pass)", mask_resized)
-
-                    # 3. Normalized 8x8 Grid Map
-                    grid_vis = cv2.resize(normalized_grid, (512, 512), interpolation=cv2.INTER_NEAREST)
-                    grid_vis = (grid_vis * 255).astype(np.uint8)
-                    grid_vis = cv2.applyColorMap(grid_vis, cv2.COLORMAP_JET)
-                    
-                    # Overlay numeric values on the 8x8 squares
-                    for r in range(8):
-                        for c in range(8):
-                            val = normalized_grid[r, c]
-                            text = f"{val:.2f}"
-                            x = c * 64 + 12
-                            y = r * 64 + 38
-                            text_color = (255, 255, 255) if val < 0.5 else (0, 0, 0)
-                            cv2.putText(grid_vis, text, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.45, text_color, 1, cv2.LINE_AA)
-                            
-                    cv2.imshow("Normalized 8x8 Grid", grid_vis)
-
+                    vis = render_height_overlay(warped_color, overlay_grid, height_grid_mm)
+                    cv2.imshow("Chess Vision — Height Overlay", vis)
                     if cv2.waitKey(1) & 0xFF == ord('q'):
                         print("Window closed — stopping.")
                         break
+
+                if min_frame_time > 0:
+                    elapsed = time.monotonic() - frame_start
+                    if elapsed < min_frame_time:
+                        time.sleep(min_frame_time - elapsed)
 
         except KeyboardInterrupt:
             print("\nStopped.")

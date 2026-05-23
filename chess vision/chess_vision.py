@@ -196,15 +196,18 @@ class BoardAnalyzer:
                 result[row, col] = float(np.percentile(valid, 10)) if len(valid) > 0 else 0.0
         return result
 
-    def analyze(self, depth_mm: np.ndarray, color_bgr: np.ndarray = None):
-        if color_bgr is not None:
+    def analyze(self, depth_mm: np.ndarray, color_bgr: np.ndarray = None, prewarped: bool = False):
+        if color_bgr is not None and not prewarped:
             self._frame_count += 1
             if self._frame_count % self.recheck_interval == 0:
                 corners = self._detector.detect(color_bgr)
                 if corners is not None:
                     self.M = self._detector.compute_transform(corners)
 
-        warped_depth = self._warp(depth_mm, flags=cv2.INTER_NEAREST)
+        if prewarped:
+            warped_depth = depth_mm
+        else:
+            warped_depth = self._warp(depth_mm, flags=cv2.INTER_NEAREST)
         
         # heights_full is the full resolution height map in the warped space (512x512)
         heights_full = np.zeros_like(warped_depth, dtype=np.float32)
@@ -256,7 +259,7 @@ class BoardAnalyzer:
         else:
             normalized_grid = np.zeros_like(smooth_percentage)
 
-        raw_occupied = smooth_percentage > 0.15
+        raw_occupied = smooth_percentage > 0.50
         self._apply_hysteresis(raw_occupied)
         
         # For classification
@@ -276,7 +279,7 @@ class BoardAnalyzer:
                     physical_heights[r, c] = 0.0
                     
         piece_classes = classify_pieces(physical_heights, self._state)
-        return self._state.copy(), heights_full, threshold_mask, normalized_grid, piece_classes
+        return self._state.copy(), heights_full, threshold_mask, normalized_grid, piece_classes, physical_heights
 
     def _apply_hysteresis(self, raw: np.ndarray) -> None:
         """Only flip state after raw is consistent for self._hysteresis frames."""
@@ -448,7 +451,7 @@ class IrregularBoardAnalyzer:
                         physical_heights[r, c] = 0.0
                         
         piece_classes = classify_pieces(physical_heights, self._state)
-        return self._state.copy(), heights_full, threshold_mask, normalized_grid, piece_classes
+        return self._state.copy(), heights_full, threshold_mask, normalized_grid, piece_classes, physical_heights
 
     def visualize(self, color_bgr: np.ndarray, occupied_bitmap: np.ndarray) -> np.ndarray:
         """Draws per-square quads on the original (unwarped) image."""

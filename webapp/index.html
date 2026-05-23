@@ -173,7 +173,8 @@ let game = new Chess();
 let board, edBoard;
 let occupancySource = 'digital'; // 'digital' | 'camera'
 let noiseLevel = 0.05;
-let pendingOccupancy = null;      // captured on drag-end, consumed on Space
+let pendingOccupancy = null;    // post-move occupancy captured on drag-end
+let pendingPreMoveFen = null;   // FEN BEFORE the drag, sent to inference
 
 // piece maps
 const PIECES = [
@@ -284,14 +285,19 @@ function onDragStart(source,piece){
 
 function onDrop(source,target){
   if(source===target) return;
-  // tentatively make the move in Chess.js to validate legality
+
+  // ── KEY FIX: save the pre-move FEN BEFORE advancing the game ──
+  const preFen = game.fen();
+
   const mv=game.move({from:source,to:target,promotion:'q'});
   if(mv===null) return 'snapback';
   board.position(game.fen());
 
-  // Capture the occupancy state right now (after piece is on new square)
+  // Occupancy is computed from the NEW board state (what the camera sees now).
+  // But we store preFen separately so inference can compare old↔new.
   getOccupancy().then(occ=>{
-    pendingOccupancy=occ;
+    pendingOccupancy = occ;
+    pendingPreMoveFen = preFen;   // pre-move FEN stored here
     renderOccMap(occ);
     log('Move staged — press <b>Space</b> to detect','warn');
   });
@@ -314,14 +320,24 @@ $('#detect-btn').on('click', triggerDetect);
 async function triggerDetect(){
   if($('#detect-btn').prop('disabled')) return;
 
-  // If no pending occupancy from a drag, just read current state
+  // Grab pending occupancy (post-move) captured in onDrop.
+  // If Space pressed without a drag first, just snapshot current state
+  // — in that case preFen and game.fen() are the same (no physical move yet)
   let occ = pendingOccupancy;
   if(!occ){
     log('Reading current occupancy…');
     occ = await getOccupancy();
   }
+
+  // ── KEY FIX: use the pre-move FEN for inference, not the current game FEN ──
+  // game.fen() is already post-move (advanced in onDrop). We must send the
+  // pre-move FEN so the inference model can see the diff old↔new.
+  const fenForInference = pendingPreMoveFen || game.fen();
+  const gameWasAdvanced = !!pendingPreMoveFen; // did onDrop already call game.move()?
+
   pendingOccupancy = null;
-  
+  pendingPreMoveFen = null;
+
   log('Sending to inference…','warn');
   $('#detect-btn').prop('disabled',true);
 
@@ -329,18 +345,24 @@ async function triggerDetect(){
     const res=await fetch(`${API}/infer_move`,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({fen:game.fen(), occupancy_map:occ})
+      body:JSON.stringify({fen:fenForInference, occupancy_map:occ})
     });
     const d=await res.json();
     $('#detect-btn').prop('disabled',false);
 
     if(!d.best_move||d.best_move==='0000'){
       log(`<b>No move detected</b> (conf: ${d.confidence?.toFixed(3)})`, 'err');
+      // Revert the visual advance done in onDrop
+      if(gameWasAdvanced){ game.undo(); }
       board.position(game.fen());
       return;
     }
 
     log(`<b>Detected:</b> ${d.best_move} (conf: ${d.confidence.toFixed(3)})`, 'ok');
+
+    // If onDrop already advanced game, undo it so we can re-apply the
+    // *inferred* move cleanly (in case inference picked a different move)
+    if(gameWasAdvanced){ game.undo(); }
     game.move(d.best_move,{sloppy:true});
     board.position(game.fen());
     renderOccupancy();
@@ -348,6 +370,8 @@ async function triggerDetect(){
   }catch(e){
     $('#detect-btn').prop('disabled',false);
     log(`<b>Server error:</b> ${e.message}`,'err');
+    // Revert visual advance
+    if(gameWasAdvanced){ game.undo(); }
     board.position(game.fen());
   }
 }

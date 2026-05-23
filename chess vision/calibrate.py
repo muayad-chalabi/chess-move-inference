@@ -9,6 +9,7 @@ UI:
   • LEFT-CLICK  near a corner → snaps to it (green dot).
   • RIGHT-CLICK → undo last point.
   • Close the window when done.
+  • Drag-select an empty region to measure board distance.
   The system auto-organizes your clicks into a 9×9 grid.
 """
 
@@ -18,6 +19,7 @@ import numpy as np
 import matplotlib
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
+from matplotlib import patches
 
 from chess_vision import (
     CameraStream, DEFAULT_THRESHOLD_MM,
@@ -25,7 +27,7 @@ from chess_vision import (
 )
 
 N_BASELINE_FRAMES = 40
-SNAP_RADIUS = 30          # px — snap to corner if this close
+SNAP_RADIUS = 0          # px — snap to corner if this close
 
 
 # ── Camera ──────────────────────────────────────────────────────────────────
@@ -180,6 +182,82 @@ def snap_click_ui(color_bgr, detected_corners):
     return clicked
 
 
+def select_empty_region_ui(color_bgr, grid=None):
+    """
+    Show image and let the user drag to select an empty region.
+    Returns (x0, y0, x1, y1) in image coordinates.
+    """
+    if grid is not None:
+        color_bgr = draw_grid(color_bgr, grid)
+    rgb = cv2.cvtColor(color_bgr, cv2.COLOR_BGR2RGB)
+    selection = {"bbox": None, "press": None}
+    fig, ax = plt.subplots(figsize=(13, 8))
+    ax.imshow(rgb)
+    ax.axis("off")
+    ax.set_title(
+        "Drag to select an EMPTY region of the board\n"
+        "Close the window to confirm selection",
+        fontsize=11, pad=8)
+
+    rect = patches.Rectangle((0, 0), 0, 0, linewidth=1.5,
+                             edgecolor="lime", facecolor="none")
+    rect.set_visible(False)
+    ax.add_patch(rect)
+
+    def on_press(event):
+        if event.inaxes != ax or event.button != 1:
+            return
+        if event.xdata is None or event.ydata is None:
+            return
+        selection["press"] = (event.xdata, event.ydata)
+        rect.set_visible(True)
+        rect.set_xy((event.xdata, event.ydata))
+        rect.set_width(0)
+        rect.set_height(0)
+        fig.canvas.draw_idle()
+
+    def on_motion(event):
+        if selection["press"] is None:
+            return
+        if event.inaxes != ax or event.xdata is None or event.ydata is None:
+            return
+        x0, y0 = selection["press"]
+        x1, y1 = event.xdata, event.ydata
+        rect.set_xy((min(x0, x1), min(y0, y1)))
+        rect.set_width(abs(x1 - x0))
+        rect.set_height(abs(y1 - y0))
+        fig.canvas.draw_idle()
+
+    def on_release(event):
+        if selection["press"] is None:
+            return
+        if event.inaxes != ax or event.xdata is None or event.ydata is None:
+            selection["press"] = None
+            return
+        x0, y0 = selection["press"]
+        x1, y1 = event.xdata, event.ydata
+        selection["press"] = None
+        if abs(x1 - x0) < 10 or abs(y1 - y0) < 10:
+            return
+        x_min, x_max = sorted([x0, x1])
+        y_min, y_max = sorted([y0, y1])
+        bbox = (int(round(x_min)), int(round(y_min)),
+                int(round(x_max)), int(round(y_max)))
+        selection["bbox"] = bbox
+        ax.set_title(f"Selected region: {bbox} — close to confirm", fontsize=11, pad=8)
+        fig.canvas.draw_idle()
+
+    fig.canvas.mpl_connect("button_press_event", on_press)
+    fig.canvas.mpl_connect("motion_notify_event", on_motion)
+    fig.canvas.mpl_connect("button_release_event", on_release)
+    plt.tight_layout()
+    plt.show()
+
+    if selection["bbox"] is None:
+        raise RuntimeError("No region selected.")
+    return selection["bbox"]
+
+
 def confirm_grid_ui(color_bgr, grid):
     """Show the fitted grid. Returns True if user confirms (closes window)."""
     annotated = draw_grid(color_bgr, grid)
@@ -248,6 +326,51 @@ def capture_baseline(cam, grid):
     return baseline, threshold
 
 
+def capture_baseline_from_region(cam, grid, region):
+    """Capture N_BASELINE_FRAMES from a user-selected region."""
+    x0, y0, x1, y1 = region
+    rows, cols = grid.shape[0] - 1, grid.shape[1] - 1
+    history = np.zeros((N_BASELINE_FRAMES,), dtype=np.float32)
+
+    print(f"Capturing {N_BASELINE_FRAMES} baseline frames from selected region…")
+    n = 0
+    while n < N_BASELINE_FRAMES:
+        color, depth = cam.get_frames()
+        if color is None:
+            continue
+        h, w = depth.shape[:2]
+        rx0 = max(0, min(x0, w - 1))
+        rx1 = max(0, min(x1, w))
+        ry0 = max(0, min(y0, h - 1))
+        ry1 = max(0, min(y1, h))
+        if rx1 <= rx0 or ry1 <= ry0:
+            raise ValueError("Selected region is outside the frame.")
+        patch = depth[ry0:ry1, rx0:rx1]
+        valid = patch[patch > 0]
+        if len(valid) == 0:
+            continue
+        history[n] = float(np.median(valid))
+        n += 1
+        print(f"  {n}/{N_BASELINE_FRAMES}", end="\r", flush=True)
+        time.sleep(0.05)
+    print()
+
+    vals = history[history > 0]
+    if len(vals) == 0:
+        raise RuntimeError("No valid depth values in selected region.")
+
+    baseline_value = float(np.median(vals))
+    sigma = float(np.std(vals))
+
+    MU_NOISE = 10.0
+    K = 3.0
+    threshold_value = MU_NOISE + K * sigma
+
+    baseline = np.full((rows, cols), baseline_value, dtype=np.float32)
+    threshold = np.full((rows, cols), threshold_value, dtype=np.float32)
+    return baseline, threshold
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
@@ -286,9 +409,16 @@ def main():
             except Exception as e:
                 print(f"  Grid fitting failed: {e}. Please try again.")
 
-        print("\nStep 4 — Remove ALL pieces from the board.")
-        input("Press ENTER when board is empty… ")
-        baseline, threshold = capture_baseline(cam, grid)
+        print("\nStep 4 — Select an empty region.")
+        print("  Drag to draw a rectangle over an empty area of the board.")
+        while True:
+            try:
+                region = select_empty_region_ui(color, grid=grid)
+                break
+            except RuntimeError as e:
+                print(f"  {e} Please try again.")
+
+        baseline, threshold = capture_baseline_from_region(cam, grid, region)
 
     print("\nBaseline depth (mm):")
     print(f"  [0,0]={baseline[0,0]:.1f}  [0,7]={baseline[0,7]:.1f}")

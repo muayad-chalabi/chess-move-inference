@@ -16,7 +16,7 @@ The camera is intended to be mounted looking down at a hand-drawn or standard ch
 ## Architecture
 
 1. **Calibration (`calibrate.py`)**: 
-   Since the board is generally fixed relative to the camera, calibration is run once while the board is empty. 
+   Since the board is generally fixed relative to the camera, calibration is run once while an empty board region is selected. 
    - Uses `matplotlib` to capture user clicks to define the board boundaries.
    - Captures the empty board baseline and calculates the per-square adaptive noise threshold.
    - Outputs `calibration.npz`.
@@ -38,14 +38,14 @@ pip install pyrealsense2 opencv-python numpy matplotlib
 ```
 
 ### Step 1: Calibration
-Before detecting pieces, the system needs to learn what the empty board looks like. Make sure the board is entirely empty and your RealSense camera is plugged in.
+Before detecting pieces, the system needs a depth baseline for the board. Make sure at least one clear, empty region of the board is visible (no pieces), and your RealSense camera is plugged in.
 ```bash
 python3 calibrate.py
 ```
 - A window will appear showing the live feed.
 - The system will try to auto-detect corners (cyan dots). 
 - Left-click on the grid intersections to snap to them. You don't need to click all 81; click the outer corners and a scattering of inner ones, and the system will extrapolate the rest.
-- Close the window to confirm. The script will capture 40 frames to build the `baseline` and adaptive `threshold` map, saving them to `calibration.npz`.
+- Close the window to confirm. Then drag to select an empty board region; the script will capture 40 frames to build the `baseline` and adaptive `threshold` map, saving them to `calibration.npz`.
 
 ### Step 2: Live Detection
 Once calibrated, you can start the detection loop. Place some pieces on the board and run:
