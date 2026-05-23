@@ -21,6 +21,12 @@ h1{font-weight:800;background:linear-gradient(90deg,#38bdf8,#818cf8);-webkit-bac
 .dot{width:9px;height:9px;border-radius:50%}
 .dot.on{background:var(--success);box-shadow:0 0 8px var(--success)}
 .dot.off{background:var(--danger);box-shadow:0 0 8px var(--danger)}
+#start-btn{padding:.35rem .9rem;border-radius:.6rem;border:1px solid var(--border);background:rgba(56,189,248,.2);color:var(--text);cursor:pointer;font-size:.75rem;font-weight:700;letter-spacing:.03em}
+#start-btn:hover{background:rgba(56,189,248,.35)}
+#start-btn:disabled{opacity:.45;cursor:not-allowed}
+#cam-start-btn{padding:.35rem .9rem;border-radius:.6rem;border:1px solid var(--border);background:rgba(16,185,129,.2);color:var(--text);cursor:pointer;font-size:.75rem;font-weight:700;letter-spacing:.03em}
+#cam-start-btn:hover{background:rgba(16,185,129,.35)}
+#cam-start-btn:disabled{opacity:.45;cursor:not-allowed}
 
 /* Source toggle */
 .seg{display:flex;background:rgba(0,0,0,.3);border-radius:.6rem;border:1px solid var(--border);overflow:hidden;width:100%}
@@ -87,8 +93,11 @@ input[type=range]{accent-color:var(--accent);width:100%}
 <div class="row">
   <!-- LEFT: board -->
   <div class="panel board-wrap">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
-      <div class="badge"><div class="dot off" id="dot"></div><span id="srv-txt">Server Offline</span></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;gap:1rem;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:.6rem">
+        <div class="badge"><div class="dot off" id="dot"></div><span id="srv-txt">Server Offline</span></div>
+        <button id="start-btn" onclick="startServer()">▶ Start Server</button>
+      </div>
       <button onclick="openEditor()" style="padding:.35rem .9rem;border-radius:.6rem;border:1px solid var(--border);background:rgba(255,255,255,.07);color:var(--text);cursor:pointer;font-size:.82rem;font-weight:600">✏ Edit Board</button>
     </div>
     <div id="board"></div>
@@ -103,6 +112,10 @@ input[type=range]{accent-color:var(--accent);width:100%}
       <div class="seg">
         <button class="active" id="src-digital" onclick="setSource('digital')">📊 Digital (Noisy)</button>
         <button id="src-camera" onclick="setSource('camera')">📷 Camera (Live)</button>
+      </div>
+      <div style="margin-top:.75rem;display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
+        <div class="badge"><div class="dot off" id="cam-dot"></div><span id="cam-txt">Camera Offline</span></div>
+        <button id="cam-start-btn" onclick="startVision()">▶ Start Camera</button>
       </div>
     </div>
 
@@ -166,7 +179,7 @@ input[type=range]{accent-color:var(--accent);width:100%}
 <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 <script>
-const API = 'http://localhost:8000';
+const API = '/stockfish';
 
 // ── State ──────────────────────────────────────────────────────────
 let game = new Chess();
@@ -195,11 +208,66 @@ for(let i=0;i<64;i++) $('#occ-grid').append(`<div class="occ-cell" id="oc-${i}">
 async function checkServer(){
   try{
     const r=await fetch(`${API}/health`);
-    if(r.ok){ $('#dot').attr('class','dot on'); $('#srv-txt').text('Server Online'); $('#detect-btn').prop('disabled',false); }
+    if(r.ok){
+      $('#dot').attr('class','dot on'); $('#srv-txt').text('Server Online');
+      $('#detect-btn').prop('disabled',false);
+      $('#start-btn').prop('disabled',true).hide();
+    }
     else throw 0;
-  }catch{ $('#dot').attr('class','dot off'); $('#srv-txt').text('Server Offline'); $('#detect-btn').prop('disabled',true); }
+  }catch{
+    $('#dot').attr('class','dot off'); $('#srv-txt').text('Server Offline');
+    $('#detect-btn').prop('disabled',true);
+    $('#start-btn').prop('disabled',false).show();
+  }
 }
 setInterval(checkServer,3000); checkServer();
+
+async function startServer(){
+  $('#start-btn').prop('disabled',true).text('Starting…');
+  log('Starting Stockfish server…','warn');
+  try{
+    const r=await fetch(`/stockfish/start`,{method:'POST'});
+    if(!r.ok) throw new Error(await r.text());
+    const d=await r.json();
+    log(`<b>Stockfish:</b> ${d.status}`,'ok');
+  }catch(e){
+    log(`<b>Start failed:</b> ${e.message}`,'err');
+  }finally{
+    $('#start-btn').text('▶ Start Server');
+    setTimeout(checkServer,1000);
+  }
+}
+
+// ── Vision health ───────────────────────────────────────────────────
+async function checkVision(){
+  try{
+    const r=await fetch(`/vision/health`);
+    if(r.ok){
+      $('#cam-dot').attr('class','dot on'); $('#cam-txt').text('Camera Online');
+      $('#cam-start-btn').prop('disabled',true).hide();
+    }else throw 0;
+  }catch{
+    $('#cam-dot').attr('class','dot off'); $('#cam-txt').text('Camera Offline');
+    $('#cam-start-btn').prop('disabled',false).show();
+  }
+}
+setInterval(checkVision,3000); checkVision();
+
+async function startVision(){
+  $('#cam-start-btn').prop('disabled',true).text('Starting…');
+  log('Starting camera server…','warn');
+  try{
+    const r=await fetch(`/vision/start`,{method:'POST'});
+    if(!r.ok) throw new Error(await r.text());
+    const d=await r.json();
+    log(`<b>Camera:</b> ${d.status}`,'ok');
+  }catch(e){
+    log(`<b>Camera start failed:</b> ${e.message}`,'err');
+  }finally{
+    $('#cam-start-btn').text('▶ Start Camera');
+    setTimeout(checkVision,1000);
+  }
+}
 
 // ── Log ────────────────────────────────────────────────────────────
 function log(msg,cls=''){

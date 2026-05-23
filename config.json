@@ -2,6 +2,16 @@
     "stockfish_path": "D:/Downloads/stockfish-windows-x86-64-avx2/stockfish/stockfish-windows-x86-64-avx2.exe",
     "time_to_think_seconds": 0.5,
     "skill_level": 20,
-    "host": "0.0.0.0",
-    "port": 8000
+    "stockfish_host": "0.0.0.0",
+    "stockfish_port": 8000,
+    "webapp_host": "0.0.0.0",
+    "webapp_port": 8001,
+    "vision_output_dir": ".",
+    "vision_calibration": "calibration.npz",
+    "vision_height_threshold_mm": 30.0,
+    "vision_percentage_threshold": 0.4,
+    "vision_interval_seconds": 1.0,
+    "vision_max_fps": 15.0,
+    "vision_max_peaks": 32,
+    "vision_heartbeat_seconds": 5.0
 }

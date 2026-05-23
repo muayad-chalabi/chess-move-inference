@@ -1,18 +1,17 @@
 import json
 import os
+from pathlib import Path
 import chess
 import chess.engine
 import numpy as np
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import uvicorn
 from typing import List
 from chess_move_inference import ChessMoveInference
 
-app = FastAPI(title="Stockfish Chess Server")
+app = FastAPI(title="Stockfish API Server")
 
 # Allow CORS so external UI/software can connect
 app.add_middleware(
@@ -32,6 +31,7 @@ def load_config():
         return json.load(f)
 
 config = load_config()
+ROOT_DIR = Path(__file__).resolve().parent
 
 STOCKFISH_PATH = config.get("stockfish_path", "./stockfish/stockfish.exe")
 THINK_TIME = config.get("time_to_think_seconds", 0.5)
@@ -68,9 +68,11 @@ def get_engine():
         raise HTTPException(status_code=500, detail=f"Failed to start Stockfish engine: {e}")
 
 
-# Path where chess vision run.py writes its output (configurable via config.json)
-VISION_OUTPUT_DIR = config.get("vision_output_dir", ".")
-OCCUPIED_BITMAP_PATH = os.path.join(VISION_OUTPUT_DIR, "occupied_bitmap.npy")
+# Path where chess vision writes its output (configurable via config.json)
+VISION_OUTPUT_DIR = Path(config.get("vision_output_dir", "."))
+if not VISION_OUTPUT_DIR.is_absolute():
+    VISION_OUTPUT_DIR = (ROOT_DIR / VISION_OUTPUT_DIR).resolve()
+OCCUPIED_BITMAP_PATH = VISION_OUTPUT_DIR / "occupied_bitmap.npy"
 
 
 # --- API Endpoints ---
@@ -84,11 +86,11 @@ def camera_occupancy():
     Read the latest occupied_bitmap.npy written by chess vision run.py.
     Returns an 8x8 grid of 0.0/1.0 values as a JSON list of lists.
     """
-    if not os.path.exists(OCCUPIED_BITMAP_PATH):
+    if not OCCUPIED_BITMAP_PATH.exists():
         raise HTTPException(
             status_code=404,
             detail=f"occupied_bitmap.npy not found at '{OCCUPIED_BITMAP_PATH}'. "
-                   "Make sure chess vision run.py is running."
+                   "Make sure chess vision is running."
         )
     try:
         bitmap = np.load(OCCUPIED_BITMAP_PATH).astype(np.float32)
@@ -178,15 +180,8 @@ def rate_move(req: RateMoveRequest):
     finally:
         engine.quit()
 
-# --- Serve Webapp Files ---
-app.mount("/static", StaticFiles(directory="webapp"), name="static")
-
-@app.get("/")
-def serve_index():
-    return FileResponse("webapp/index.html")
-
 if __name__ == "__main__":
-    host = config.get("host", "0.0.0.0")
-    port = config.get("port", 8000)
-    print(f"Starting server on {host}:{port}")
+    host = config.get("stockfish_host", config.get("host", "0.0.0.0"))
+    port = config.get("stockfish_port", config.get("port", 8000))
+    print(f"Starting Stockfish API on {host}:{port}")
     uvicorn.run("stockfish_server:app", host=host, port=port, reload=True)

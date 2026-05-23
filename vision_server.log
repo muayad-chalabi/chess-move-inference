@@ -1,0 +1,902 @@
+
+--- Vision start 2026-05-23 16:05:18 ---
+Loading calibration from D:\.Personal projects\chess-cv\calibration.npz…
+
+============================================================
+Chess Vision — Live Detection
+============================================================
+Height threshold:      10.0 mm
+Percentage threshold:  40.0%
+Output directory:      D:\.Personal projects\chess-cv
+============================================================
+
+Camera ready. Press Ctrl-C to stop.
+
+[16:05:21]  Pieces detected: 0
+  a  b  c  d  e  f  g  h
+Traceback (most recent call last):
+  File "D:\.Personal projects\chess-cv\chess vision\run_occto_detection.py", line 241, in <module>
+    main()
+  File "D:\.Personal projects\chess-cv\chess vision\run_occto_detection.py", line 213, in main
+    print_board(piece_classes)
+  File "D:\.Personal projects\chess-cv\chess vision\run_occto_detection.py", line 34, in print_board
+    print(f"  {'\u2500' * 23}")
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 2-24: character maps to <undefined>
+
+--- Vision start 2026-05-23 16:05:59 ---
+Loading calibration from D:\.Personal projects\chess-cv\calibration.npz…
+
+============================================================
+Chess Vision — Live Detection
+============================================================
+Height threshold:      10.0 mm
+Percentage threshold:  40.0%
+Output directory:      D:\.Personal projects\chess-cv
+============================================================
+
+Camera ready. Press Ctrl-C to stop.
+
+[16:06:02]  Pieces detected: 0
+  a  b  c  d  e  f  g  h
+Traceback (most recent call last):
+  File "D:\.Personal projects\chess-cv\chess vision\run_occto_detection.py", line 241, in <module>
+    main()
+  File "D:\.Personal projects\chess-cv\chess vision\run_occto_detection.py", line 213, in main
+    print_board(piece_classes)
+  File "D:\.Personal projects\chess-cv\chess vision\run_occto_detection.py", line 34, in print_board
+    print(f"  {'\u2500' * 23}")
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 2-24: character maps to <undefined>
+
+--- Vision start 2026-05-23 16:07:33 ---
+Loading calibration from D:\.Personal projects\chess-cv\calibration.npz…
+
+============================================================
+Chess Vision — Live Detection
+============================================================
+Height threshold:      10.0 mm
+Percentage threshold:  40.0%
+Output directory:      D:\.Personal projects\chess-cv
+============================================================
+
+Camera ready. Press Ctrl-C to stop.
+
+[16:07:36]  Pieces detected: 0
+  a  b  c  d  e  f  g  h
+Traceback (most recent call last):
+  File "D:\.Personal projects\chess-cv\chess vision\run_occto_detection.py", line 241, in <module>
+    main()
+  File "D:\.Personal projects\chess-cv\chess vision\run_occto_detection.py", line 213, in main
+    print_board(piece_classes)
+  File "D:\.Personal projects\chess-cv\chess vision\run_occto_detection.py", line 34, in print_board
+    print(f"  {'\u2500' * 23}")
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 2-24: character maps to <undefined>
+
+--- Vision start 2026-05-23 16:07:45 ---
+Loading calibration from D:\.Personal projects\chess-cv\calibration.npz…
+
+============================================================
+Chess Vision — Live Detection
+============================================================
+Height threshold:      10.0 mm
+Percentage threshold:  40.0%
+Output directory:      D:\.Personal projects\chess-cv
+============================================================
+
+Camera ready. Press Ctrl-C to stop.
+
+[16:07:47]  Pieces detected: 0
+  a  b  c  d  e  f  g  h
+Traceback (most recent call last):
+  File "D:\.Personal projects\chess-cv\chess vision\run_occto_detection.py", line 241, in <module>
+    main()
+  File "D:\.Personal projects\chess-cv\chess vision\run_occto_detection.py", line 213, in main
+    print_board(piece_classes)
+  File "D:\.Personal projects\chess-cv\chess vision\run_occto_detection.py", line 34, in print_board
+    print(f"  {'\u2500' * 23}")
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 2-24: character maps to <undefined>
+
+--- Vision start 2026-05-23 16:08:58 ---
+Loading calibration from D:\.Personal projects\chess-cv\calibration.npz…
+
+============================================================
+Chess Vision - Live Detection
+============================================================
+Height threshold:      10.0 mm
+Percentage threshold:  40.0%
+Output directory:      D:\.Personal projects\chess-cv
+============================================================
+
+Camera ready. Press Ctrl-C to stop.
+
+[16:09:01]  Pieces detected: 0
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  .  .  .  .
+7 | .  .  .  .  .  .  .  .
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  .  .  .  .  .  .  .
+1 | .  .  .  .  .  .  .  .
+
+[16:09:02]  Pieces detected: 0
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  .  .  .  .
+7 | .  .  .  .  .  .  .  .
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  .  .  .  .  .  .  .
+1 | .  .  .  .  .  .  .  .
+
+[16:09:03]  Pieces detected: 13
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  .  .  .  .  .
+1 | M  M  P  .  .  .  .  .
+
+[16:09:04]  Pieces detected: 12
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  .  .  .  .  .
+1 | M  .  P  .  .  .  .  .
+
+[16:09:06]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  .  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+[16:09:07]  Pieces detected: 12
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  .  .  .  .  .
+1 | M  M  .  .  .  .  .  .
+
+[16:09:08]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  .  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+[16:09:09]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  .  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+[16:09:10]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  .  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+[16:09:11]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  .  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+[16:09:13]  Pieces detected: 12
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  M  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+[16:09:14]  Pieces detected: 12
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  M  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+[16:09:15]  Pieces detected: 12
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  M  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+[16:09:16]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  .  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+[16:09:18]  Pieces detected: 12
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  M  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+[16:09:19]  Pieces detected: 12
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  M  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+[16:09:20]  Pieces detected: 12
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  M  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+[16:09:21]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  .  .  M  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+[16:09:22]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  .  .  M  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+[16:09:23]  Pieces detected: 10
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  .  .  .  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+[16:09:24]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  .  .  M  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+[16:09:25]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  .  .  M  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+[16:09:26]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  .  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+[16:09:28]  Pieces detected: 12
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  .  .  .  .  .
+1 | M  M  .  .  .  .  .  .
+
+[16:09:29]  Pieces detected: 12
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  .  .  .  .  .
+1 | M  M  .  .  .  .  .  .
+
+[16:09:30]  Pieces detected: 12
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  .  .  .  .  .
+1 | M  M  .  .  .  .  .  .
+
+[16:09:31]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  .  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+[16:09:32]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  .  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+[16:09:33]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  .  .  M  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+[16:09:34]  Pieces detected: 10
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  .  .  .  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+[16:09:36]  Pieces detected: 10
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  .  .  .  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+[16:09:37]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  .  .  .  .  .
+1 | M  .  .  .  .  .  .  .
+
+
+Stopped.
+
+--- Vision start 2026-05-23 16:11:18 ---
+Loading calibration from D:\.Personal projects\chess-cv\calibration.npz…
+
+============================================================
+Chess Vision - Live Detection
+============================================================
+Height threshold:      10.0 mm
+Percentage threshold:  40.0%
+Output directory:      D:\.Personal projects\chess-cv
+============================================================
+
+Camera ready. Press Ctrl-C to stop.
+
+[16:11:21]  Pieces detected: 0
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  .  .  .  .
+7 | .  .  .  .  .  .  .  .
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  .  .  .  .  .  .  .
+1 | .  .  .  .  .  .  .  .
+
+[16:11:22]  Pieces detected: 10
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  .  .  .  .  .
+1 | .  .  .  .  .  .  .  .
+
+[16:11:23]  Pieces detected: 10
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  .  .  .  .  .
+1 | .  .  .  .  .  .  .  .
+
+[16:11:24]  Pieces detected: 10
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  .  .  .  .  .
+1 | .  .  .  .  .  .  .  .
+
+[16:11:26]  Pieces detected: 10
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  .  .  M  .  .  .  .
+1 | .  .  .  .  .  .  .  .
+
+[16:11:27]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  .  .  M  .  .  .  .
+1 | .  P  .  .  .  .  .  .
+
+[16:11:28]  Pieces detected: 12
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  M  .  .  .  .
+1 | .  P  .  .  .  .  .  .
+
+[16:11:29]  Pieces detected: 12
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  M  .  .  .  .
+1 | .  M  .  .  .  .  .  .
+
+[16:11:30]  Pieces detected: 12
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  M  .  .  .  .
+1 | .  M  .  .  .  .  .  .
+
+[16:11:31]  Pieces detected: 12
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  M  .  .  .  .
+1 | .  P  .  .  .  .  .  .
+
+[16:11:32]  Pieces detected: 12
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  M  .  .  .  .
+1 | .  M  .  .  .  .  .  .
+
+[16:11:33]  Pieces detected: 12
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  M  .  .  .  .
+1 | .  P  .  .  .  .  .  .
+
+[16:11:35]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  M  .  .  .  .
+1 | .  .  .  .  .  .  .  .
+
+[16:11:36]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  M  .  .  .  .
+1 | .  .  .  .  .  .  .  .
+
+[16:11:37]  Pieces detected: 9
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  .  .  .  .  .  .  .
+1 | .  .  .  .  .  .  .  .
+
+[16:11:38]  Pieces detected: 10
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  .  .  M  .  .  .  .
+1 | .  .  .  .  .  .  .  .
+
+[16:11:40]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  M  .  .  .  .
+1 | .  .  .  .  .  .  .  .
+
+[16:11:41]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  M  .  .  .  .
+1 | .  .  .  .  .  .  .  .
+
+[16:11:42]  Pieces detected: 12
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  M  .  .  .  .
+1 | .  M  .  .  .  .  .  .
+
+[16:11:43]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  .  .  .  .  .
+1 | .  M  .  .  .  .  .  .
+
+[16:11:44]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  .  .  .  .  .
+1 | .  M  .  .  .  .  .  .
+
+[16:11:46]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  M  .  .  .  .  .  .
+1 | .  M  .  .  .  .  .  .
+
+[16:11:47]  Pieces detected: 10
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  .  .  M  .  .  .  .
+1 | .  .  .  .  .  .  .  .
+
+[16:11:48]  Pieces detected: 11
+  a  b  c  d  e  f  g  h
+  -----------------------
+8 | .  .  .  .  M  M  M  M
+7 | .  .  .  M  M  M  M  M
+6 | .  .  .  .  .  .  .  .
+5 | .  .  .  .  .  .  .  .
+4 | .  .  .  .  .  .  .  .
+3 | .  .  .  .  .  .  .  .
+2 | .  .  .  M  .  .  .  .
+1 | .  M  .  .  .  .  .  .
+
+
+Stopped.
+
+--- Vision start 2026-05-23 16:16:48 ---
+Loading calibration from D:\.Personal projects\chess-cv\calibration.npz...
+Camera ready. Press 'q' to stop.
+Traceback (most recent call last):
+  File "D:\.Personal projects\chess-cv\chess vision\detect_peaks.py", line 447, in <module>
+    main()
+  File "D:\.Personal projects\chess-cv\chess vision\detect_peaks.py", line 327, in main
+    warped_color = warp_board(color, M, BOARD_PX, flags=cv2.INTER_LINEAR)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\.Personal projects\chess-cv\chess vision\detect_peaks.py", line 25, in warp_board
+    def warp_board(
+    
+KeyboardInterrupt
+
+--- Vision start 2026-05-23 16:26:19 ---
+Loading calibration from D:\.Personal projects\chess-cv\calibration.npz...
+Camera ready. Press 'q' to stop.
+Traceback (most recent call last):
+  File "D:\.Personal projects\chess-cv\chess vision\detect_peaks.py", line 454, in <module>
+    main()
+  File "D:\.Personal projects\chess-cv\chess vision\detect_peaks.py", line 338, in main
+    peaks = find_peaks(
+            ^^^^^^^^^^^
+  File "D:\.Personal projects\chess-cv\chess vision\detect_peaks.py", line 80, in find_peaks
+    ys, xs = np.where(labels == label)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+--- Vision start 2026-05-23 16:27:08 ---
+Loading calibration from D:\.Personal projects\chess-cv\calibration.npz...
+Camera ready. Press 'q' to stop.
+Traceback (most recent call last):
+  File "D:\.Personal projects\chess-cv\chess vision\detect_peaks.py", line 454, in <module>
+    main()
+  File "D:\.Personal projects\chess-cv\chess vision\detect_peaks.py", line 338, in main
+    peaks = find_peaks(
+            ^^^^^^^^^^^
+  File "D:\.Personal projects\chess-cv\chess vision\detect_peaks.py", line 80, in find_peaks
+    ys, xs = np.where(labels == label)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+--- Vision start 2026-05-23 16:29:08 ---
+Loading calibration from D:\.Personal projects\chess-cv\calibration.npz...
+Camera ready. Press 'q' to stop.
+Traceback (most recent call last):
+  File "D:\.Personal projects\chess-cv\chess vision\detect_peaks.py", line 454, in <module>
+    main()
+  File "D:\.Personal projects\chess-cv\chess vision\detect_peaks.py", line 338, in main
+    peaks = find_peaks(
+            ^^^^^^^^^^^
+  File "D:\.Personal projects\chess-cv\chess vision\detect_peaks.py", line 80, in find_peaks
+    ys, xs = np.where(labels == label)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\.Personal projects\chess-cv\venv\Lib\site-packages\numpy\_core\multiarray.py", line 403, in where
+    @array_function_from_c_func_and_dispatcher(_multiarray_umath.where)
+    
+KeyboardInterrupt
+
+--- Vision start 2026-05-23 16:29:54 ---
+Loading calibration from D:\.Personal projects\chess-cv\calibration.npz...
+Camera ready. Press 'q' to stop.
+Traceback (most recent call last):
+  File "D:\.Personal projects\chess-cv\chess vision\detect_peaks.py", line 454, in <module>
+    main()
+  File "D:\.Personal projects\chess-cv\chess vision\detect_peaks.py", line 338, in main
+    peaks = find_peaks(
+            ^^^^^^^^^^^
+  File "D:\.Personal projects\chess-cv\chess vision\detect_peaks.py", line 80, in find_peaks
+    ys, xs = np.where(labels == label)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\.Personal projects\chess-cv\venv\Lib\site-packages\numpy\_core\multiarray.py", line 403, in where
+    @array_function_from_c_func_and_dispatcher(_multiarray_umath.where)
+    
+KeyboardInterrupt
+
+--- Vision start 2026-05-23 16:33:56 ---
+Loading calibration from D:\.Personal projects\chess-cv\calibration.npz...
+Camera ready. Press 'q' to stop.
+Traceback (most recent call last):
+  File "D:\.Personal projects\chess-cv\chess vision\detect_peaks.py", line 454, in <module>
+    main()
+  File "D:\.Personal projects\chess-cv\chess vision\detect_peaks.py", line 330, in main
+    color, depth = cam.get_frames()
+                   ^^^^^^^^^^^^^^^^
+  File "D:\.Personal projects\chess-cv\chess vision\chess_vision.py", line 59, in get_frames
+    aligned = self._align.process(frames)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
