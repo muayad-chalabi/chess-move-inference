@@ -900,3 +900,27 @@ Traceback (most recent call last):
     aligned = self._align.process(frames)
               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 KeyboardInterrupt
+
+--- Vision start 2026-05-25 17:53:33 ---
+Loading calibration from D:\.Personal projects\chess-cv\calibration.npz...
+Camera ready. Press 'q' to stop.
+Traceback (most recent call last):
+  File "D:\.Personal projects\chess-cv\chess vision\detect_peaks.py", line 502, in <module>
+    main()
+  File "D:\.Personal projects\chess-cv\chess vision\detect_peaks.py", line 472, in main
+    raw_panel = render_pair(color, colorize_depth(depth))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\.Personal projects\chess-cv\chess vision\detect_peaks.py", line 139, in render_pair
+    r = cv2.resize(right, (int(right.shape[1] * height / right.shape[0]), height))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+--- Vision start 2026-05-25 17:58:24 ---
+Loading calibration from D:\.Personal projects\chess-cv\calibration.npz...
+Camera ready. Press 'q' to stop.
+Traceback (most recent call last):
+  File "D:\.Personal projects\chess-cv\chess vision\detect_peaks.py", line 502, in <module>
+    main()
+  File "D:\.Personal projects\chess-cv\chess vision\detect_peaks.py", line 496, in main
+    time.sleep(min_frame_time - elapsed)
+KeyboardInterrupt

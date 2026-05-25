@@ -61,6 +61,15 @@ def sample_depth_mm(depth_mm: np.ndarray, u: float, v: float, window: int = 5) -
     return float(np.median(valid)) if len(valid) else 0.0
 
 
+def classify_piece(height_mm: float) -> str:
+    classes = {
+        "Pawn": 45.0,
+        "Rook": 50.0,
+        "Bish/Kni": 65.0,
+        "King/Que": 90.0
+    }
+    return min(classes.keys(), key=lambda k: abs(classes[k] - height_mm))
+
 def find_peaks(
     height_map: np.ndarray,
     min_height: float,
@@ -137,21 +146,25 @@ def render_peaks_panel(
     world_xy_mm: list[tuple[float, float]],
     world_grid_points: np.ndarray | None = None,
     peak_squares: set[tuple[int, int]] | None = None,
+    buffer_px: int = 0,
 ) -> np.ndarray:
     vis = warped_color.copy()
     h, w = vis.shape[:2]
+    board_px = w - 2 * buffer_px
     for i in range(1, 8):
-        x = int(round(i * w / 8))
-        y = int(round(i * h / 8))
-        cv2.line(vis, (x, 0), (x, h - 1), (50, 50, 50), 1)
-        cv2.line(vis, (0, y), (w - 1, y), (50, 50, 50), 1)
+        x = int(round(buffer_px + i * board_px / 8))
+        y = int(round(buffer_px + i * board_px / 8))
+        cv2.line(vis, (x, buffer_px), (x, h - buffer_px - 1), (50, 50, 50), 1)
+        cv2.line(vis, (buffer_px, y), (w - buffer_px - 1, y), (50, 50, 50), 1)
+    cv2.rectangle(vis, (buffer_px, buffer_px), (w - buffer_px - 1, h - buffer_px - 1), (100, 100, 100), 1)
 
     for x, y, h in peaks_warped:
+        pt_class = classify_piece(h)
         cv2.circle(vis, (x, y), 6, (0, 0, 0), 2)
         cv2.circle(vis, (x, y), 5, (0, 255, 0), -1)
         cv2.putText(
             vis,
-            f"{h:.0f}mm",
+            f"{pt_class} {h:.0f}mm",
             (x + 6, y - 6),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.45,
@@ -291,6 +304,13 @@ def main():
         default=6,
         help="Occupancy moving average window in frames (default: 3, use 1 to disable)",
     )
+    parser.add_argument(
+        "--no-clamp-board",
+        action="store_false",
+        dest="clamp_board",
+        help="Disable clamping of XYZ peaks to [0, 1] board coordinates",
+    )
+    parser.set_defaults(clamp_board=True)
     args = parser.parse_args()
 
     out_dir = Path(args.output_dir)
@@ -322,6 +342,13 @@ def main():
     M_inv = np.linalg.inv(M)
     baseline_map = build_baseline_map(baseline.astype(np.float32), BOARD_PX)
 
+    BUFFER_PX = 20
+    WARPED_SIZE = BOARD_PX + 2 * BUFFER_PX
+    T = np.array([[1, 0, BUFFER_PX], [0, 1, BUFFER_PX], [0, 0, 1]], dtype=np.float32)
+    M_buf = T @ M
+    M_buf_inv = np.linalg.inv(M_buf)
+    baseline_map_padded = cv2.copyMakeBorder(baseline_map, BUFFER_PX, BUFFER_PX, BUFFER_PX, BUFFER_PX, cv2.BORDER_REPLICATE)
+
     cam = CameraStream()
     with cam:
         profile = cam.pipeline.get_active_profile()
@@ -340,10 +367,10 @@ def main():
             if color is None or depth is None:
                 continue
 
-            warped_color = warp_board(color, M, BOARD_PX, flags=cv2.INTER_LINEAR)
-            warped_depth = warp_board(depth, M, BOARD_PX, flags=cv2.INTER_NEAREST)
+            warped_color = warp_board(color, M_buf, WARPED_SIZE, flags=cv2.INTER_LINEAR)
+            warped_depth = warp_board(depth, M_buf, WARPED_SIZE, flags=cv2.INTER_NEAREST)
 
-            height_map = compute_height_map(warped_depth, baseline_map)
+            height_map = compute_height_map(warped_depth, baseline_map_padded)
             peaks = find_peaks(
                 height_map, min_height=args.min_height, max_peaks=args.max_peaks
             )
@@ -351,14 +378,14 @@ def main():
             cell = BOARD_PX / 8.0
             peak_squares_uv: set[tuple[int, int]] = set()
             for x, y, _ in peaks:
-                r = int(y / cell) if cell > 0 else 0
-                c = int(x / cell) if cell > 0 else 0
+                r = int((y - BUFFER_PX) / cell) if cell > 0 else 0
+                c = int((x - BUFFER_PX) / cell) if cell > 0 else 0
                 r = max(0, min(7, r))
                 c = max(0, min(7, c))
                 peak_squares_uv.add((r, c))
             if peaks:
                 pts = np.float32([[p[0], p[1]] for p in peaks]).reshape(-1, 1, 2)
-                pts_raw = cv2.perspectiveTransform(pts, M_inv).reshape(-1, 2)
+                pts_raw = cv2.perspectiveTransform(pts, M_buf_inv).reshape(-1, 2)
             else:
                 pts_raw = np.empty((0, 2), dtype=np.float32)
 
@@ -418,6 +445,13 @@ def main():
                     for xw, yw in world_xy_mm:
                         rel = np.array([xw - tl[0], yw - tl[1]], dtype=np.float32)
                         s, t = A_inv @ rel
+                        
+                        if args.clamp_board:
+                            # Clamp within reasonable bounds, avoiding wild points like hands
+                            if -0.2 < s < 1.2 and -0.2 < t < 1.2:
+                                s = max(0.0, min(0.999, float(s)))
+                                t = max(0.0, min(0.999, float(t)))
+
                         if 0.0 <= s < 1.0 and 0.0 <= t < 1.0:
                             c = int(s * 8)
                             r = int(t * 8)
@@ -445,6 +479,7 @@ def main():
                 world_xy_mm,
                 world_grid_points,
                 peak_squares,
+                buffer_px=BUFFER_PX,
             )
 
             if not args.dont_visualize:

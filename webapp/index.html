@@ -116,6 +116,7 @@ input[type=range]{accent-color:var(--accent);width:100%}
       <div style="margin-top:.75rem;display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
         <div class="badge"><div class="dot off" id="cam-dot"></div><span id="cam-txt">Camera Offline</span></div>
         <button id="cam-start-btn" onclick="startVision()">▶ Start Camera</button>
+        <button id="cam-snapshot-btn" onclick="snapshotVision()" style="padding:.35rem .9rem;border-radius:.6rem;border:1px solid var(--border);background:rgba(255,255,255,.07);color:var(--text);cursor:pointer;font-size:.75rem;font-weight:700;">📸 Snapshot</button>
       </div>
     </div>
 
@@ -266,6 +267,26 @@ async function startVision(){
   }finally{
     $('#cam-start-btn').text('▶ Start Camera');
     setTimeout(checkVision,1000);
+  }
+}
+
+async function snapshotVision(){
+  $('#cam-snapshot-btn').prop('disabled',true).text('Snapping…');
+  log('Running vision service snapshot…','warn');
+  try{
+    const r=await fetch(`/vision/service/capture?frames=15`,{method:'POST'});
+    if(!r.ok) throw new Error(await r.text());
+    const d=await r.json();
+    log(`<b>Snapshot complete</b>`,'ok');
+    
+    if (d.occupancy) {
+      renderOccMap(d.occupancy);
+      pendingOccupancy = d.occupancy;
+    }
+  }catch(e){
+    log(`<b>Snapshot failed:</b> ${e.message}`,'err');
+  }finally{
+    $('#cam-snapshot-btn').text('📸 Snapshot').prop('disabled',false);
   }
 }
 

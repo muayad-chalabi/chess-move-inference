@@ -114,7 +114,7 @@ app.mount("/static", StaticFiles(directory="webapp"), name="static")
 
 @app.get("/")
 def serve_index():
-    return FileResponse("webapp/index.html")
+    return FileResponse("webapp/index_v2.html")
 
 
 @app.get("/health")
@@ -150,82 +150,6 @@ def start_stockfish():
 
 
 # --- Vision control ---
-@app.get("/vision/health")
-def vision_health():
-    if _vision_online():
-        return {"status": "online"}
-    return JSONResponse(status_code=503, content={"status": "offline"})
-
-
-@app.post("/vision/start")
-def start_vision():
-    global VISION_PROCESS
-    if _vision_online():
-        return {"status": "already_running"}
-
-    if importlib.util.find_spec("pyrealsense2") is None:
-        raise HTTPException(
-            status_code=500,
-            detail="pyrealsense2 is not installed. Install Intel RealSense Python bindings.",
-        )
-
-    if not VISION_CALIBRATION.exists():
-        raise HTTPException(
-            status_code=500,
-            detail=f"Calibration file not found at '{VISION_CALIBRATION}'.",
-        )
-
-    script_path = Path(__file__).resolve().parent / "chess vision" / "detect_peaks.py"
-    if not script_path.exists():
-        raise HTTPException(status_code=500, detail="detect_peaks.py not found.")
-
-    VISION_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-    args = [
-        sys.executable,
-        str(script_path),
-        "--output-dir",
-        str(VISION_OUTPUT_DIR),
-        "--calibration",
-        str(VISION_CALIBRATION),
-        "--min-height",
-        str(VISION_HEIGHT_THRESHOLD),
-        "--max-peaks",
-        str(VISION_MAX_PEAKS),
-        "--write-interval",
-        str(VISION_INTERVAL),
-        "--max-fps",
-        str(VISION_MAX_FPS),
-        "--occ-avg-frames",
-        str(VISION_OCC_AVG_FRAMES),
-        #"--dont_visualize",
-    ]
-
-    VISION_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with VISION_LOG_PATH.open("a", encoding="utf-8") as log_file:
-        log_file.write(f"\n--- Vision start {time.strftime('%Y-%m-%d %H:%M:%S')} ---\n")
-        VISION_PROCESS = subprocess.Popen(
-            args,
-            cwd=str(script_path.parent),
-            stdout=log_file,
-            stderr=log_file,
-        )
-
-    for _ in range(40):
-        time.sleep(0.5)
-        if VISION_PROCESS.poll() is not None:
-            tail = _tail_file(VISION_LOG_PATH)
-            detail = f"Vision process exited with code {VISION_PROCESS.returncode}."
-            if tail:
-                detail = f"{detail}\nLog tail:\n{tail}"
-            raise HTTPException(
-                status_code=500,
-                detail=detail,
-            )
-        if _vision_online():
-            return {"status": "started"}
-
-    raise HTTPException(status_code=500, detail="Vision server failed to start in time.")
 
 
 @app.post("/vision/service/capture")
@@ -283,4 +207,4 @@ def proxy_rate_move(payload: dict):
 
 if __name__ == "__main__":
     print(f"Starting web app on {WEBAPP_HOST}:{WEBAPP_PORT}")
-    uvicorn.run("webapp_server:app", host=WEBAPP_HOST, port=WEBAPP_PORT, reload=True)
+    uvicorn.run("webapp_server_v2:app", host=WEBAPP_HOST, port=WEBAPP_PORT, reload=True)
